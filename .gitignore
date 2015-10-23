@@ -26,3 +26,10 @@
 *.exe
 *.out
 *.app
+
+*.suo
+*.apk
+*.vcxproj.user
+*.opensdf
+*.tlog
+*.log
