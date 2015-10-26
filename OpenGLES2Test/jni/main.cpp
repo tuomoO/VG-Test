@@ -56,7 +56,7 @@ glm::mat4 modelTransform(int x, int y, int sx, int sy, float rotation)
 	model = glm::scale(model, glm::vec3(size2, 1.0f));
 	return model;
 }
-
+/*
 static const GLchar* VERTEXSOURCE
 {
 	"precision highp float;\n"
@@ -89,6 +89,7 @@ static const GLchar* FRAGMENTSOURCE
 
 	"uniform sampler2D unifTexture;\n"
 	"uniform float unifNoTexture;\n"
+	"uniform float unifFontTexture;\n"
 
 	"void main()\n"
 	"{\n"
@@ -96,12 +97,20 @@ static const GLchar* FRAGMENTSOURCE
 	"		gl_FragColor = varyColor;\n"
 	"	else\n"
 	"	{\n"
-	"		gl_FragColor = texture2D(unifTexture, varyTexCoord);\n"
-	"		gl_FragColor *= varyColor;\n"
+    "		if (unifFontTexture > 0.5)\n"
+	"		{\n"
+	"			float alpha = texture2D(unifTexture, varyTexCoord).a * varyColor.a;\n"
+	"			gl_FragColor = vec4(varyColor.rgb, alpha); \n"
+	"		}\n"
+	"		else\n"
+	"		{\n"
+	"			gl_FragColor = texture2D(unifTexture, varyTexCoord);\n"
+	"			gl_FragColor *= varyColor;\n"
+	"		}\n"
 	"	}\n"
 	"}\n"
 };
-
+*/
 vector<float> VERTICES = std::vector <float>
 {
 	// Position Vec2
@@ -166,11 +175,10 @@ struct engine
 
 	GLuint programId, vertexId, fragmentId;
 	GLuint vertexBuffer, indexBuffer;
-	GLint positionId, colorId, texCoordId, modelId, projectionId, layerId, drawModeId;
+	GLint positionId, colorId, texCoordId, modelId, projectionId, layerId, noTextureId, fontTextureId;
 	glm::mat4 model, projection;
 	Texture texture;
 	FileManager* fileManager;
-	float drawMode;
 };
 
 /**
@@ -178,6 +186,7 @@ struct engine
  */
 static int engine_init_display(struct engine* engine) 
 {
+	engine->fileManager = new FileManager(engine->app);
     // initialize OpenGL ES and EGL
 
     /*
@@ -249,21 +258,25 @@ static int engine_init_display(struct engine* engine)
 		attribs = config16bpp;
 		LOG("Unknown window format!");
 	}
+	LOG("1");
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-    eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-
+	LOG("2");
+	eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
+	LOG("3");
     ANativeWindow_setBuffersGeometry(engine->app->window, 0, 0, format);
-    surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
+	LOG("4");
+	surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
+	LOG("5");
 	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
-
+	LOG("6");
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
         LOGW("Unable to eglMakeCurrent");
         return -1;
     }
-
+	LOG("7");
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-
+	LOG("8");
     engine->display = display;
     engine->context = context;
     engine->surface = surface;
@@ -273,23 +286,38 @@ static int engine_init_display(struct engine* engine)
 
 	//***************************************************
 	//opengl
-
+	LOG("9");
 	engine->programId = glCreateProgram();
 	GLint result = GL_FALSE;
-
+	LOG("10");
 	//shaders
+	LOG("11");
+	std::string tempStr;
+	LOG("12");
+	if (!engine->fileManager->readAsset("andoid_vertex.glsl", tempStr))
+		LOG("Failed to read andoid_vertex.glsl");
+	LOG("13");
+	const char* temp1 = tempStr.c_str();
+	LOG("14");
 	engine->vertexId = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(engine->vertexId, 1u, &VERTEXSOURCE, NULL);
+	LOG("15");
+	glShaderSource(engine->vertexId, 1u, &temp1, NULL);
+	LOG("16");
 	glCompileShader(engine->vertexId);
+	LOG("17");
 	glGetShaderiv(engine->vertexId, GL_COMPILE_STATUS, &result);
+	LOG("18");
 	if (result != GL_TRUE)
 	{
 		LOG("Vertex compile error");
 		shaderErrorLog(engine->vertexId);
 	}
-
+	LOG("19");
+	if (!engine->fileManager->readAsset("andoid_fragment.glsl", tempStr))
+		LOG("Failed to read andoid_fragment.glsl");
+	const char* temp2 = tempStr.c_str();
 	engine->fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(engine->fragmentId, 1, &FRAGMENTSOURCE, NULL);
+	glShaderSource(engine->fragmentId, 1, &temp2, NULL);
 	glCompileShader(engine->fragmentId);
 	glGetShaderiv(engine->fragmentId, GL_COMPILE_STATUS, &result);
 	if (result != GL_TRUE)
@@ -336,10 +364,15 @@ static int engine_init_display(struct engine* engine)
 		LOG("unifLayer not found");
 	gl::checkError();
 
-	engine->drawModeId = glGetUniformLocation(engine->programId, "unifNoTexture");
-	if (engine->drawModeId < 0)
+	engine->noTextureId = glGetUniformLocation(engine->programId, "unifNoTexture");
+	if (engine->noTextureId < 0)
 		LOG("unifNoTexture not found");
-	engine->drawMode = 0.0f;
+	gl::checkError();
+
+	engine->fontTextureId = glGetUniformLocation(engine->programId, "unifFontTexture");
+	if (engine->fontTextureId < 0)
+		LOG("unifFontTexture not found");
+	gl::checkError();
 
 	engine->model = modelTransform(200, 400, 256, 256, 45.0f);
 	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1.0f, 1.0f);
@@ -351,7 +384,9 @@ static int engine_init_display(struct engine* engine)
 	gl::checkError();
 	glUniform1f(engine->layerId, 0.5f);
 	gl::checkError();
-	glUniform1fv(engine->drawModeId, 1, &engine->drawMode);
+	glUniform1f(engine->noTextureId, 0.0f);
+	gl::checkError();
+	glUniform1f(engine->fontTextureId, 0.0f);
 	gl::checkError();
 	glUseProgram(0u);
 
@@ -384,7 +419,6 @@ static int engine_init_display(struct engine* engine)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
 	
 	//texture
-	engine->fileManager = new FileManager(engine->app);
 	glUseProgram(engine->programId);
 	if (!engine->texture.load(engine->fileManager, "koala64.png"))
 		LOG("Failed to load texture!");

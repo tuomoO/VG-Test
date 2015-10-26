@@ -33,3 +33,5 @@
 *.opensdf
 *.tlog
 *.log
+*.sdf
+OpenGLES2Test/Tegra-Android/*
