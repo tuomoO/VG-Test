@@ -56,7 +56,7 @@ glm::mat4 modelTransform(int x, int y, int sx, int sy, float rotation)
 	model = glm::scale(model, glm::vec3(size2, 1.0f));
 	return model;
 }
-/*
+
 static const GLchar* VERTEXSOURCE
 {
 	"precision highp float;\n"
@@ -110,7 +110,7 @@ static const GLchar* FRAGMENTSOURCE
 	"	}\n"
 	"}\n"
 };
-*/
+
 vector<float> VERTICES = std::vector <float>
 {
 	// Position Vec2
@@ -258,25 +258,21 @@ static int engine_init_display(struct engine* engine)
 		attribs = config16bpp;
 		LOG("Unknown window format!");
 	}
-	LOG("1");
+
     eglChooseConfig(display, attribs, &config, 1, &numConfigs);
-	LOG("2");
 	eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
-	LOG("3");
     ANativeWindow_setBuffersGeometry(engine->app->window, 0, 0, format);
-	LOG("4");
 	surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
-	LOG("5");
 	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
-	LOG("6");
-    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+
+    if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) 
+	{
         LOGW("Unable to eglMakeCurrent");
         return -1;
     }
-	LOG("7");
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
-	LOG("8");
+
     engine->display = display;
     engine->context = context;
     engine->surface = surface;
@@ -286,38 +282,34 @@ static int engine_init_display(struct engine* engine)
 
 	//***************************************************
 	//opengl
-	LOG("9");
 	engine->programId = glCreateProgram();
 	GLint result = GL_FALSE;
-	LOG("10");
+
 	//shaders
-	LOG("11");
+	/*
 	std::string tempStr;
-	LOG("12");
 	if (!engine->fileManager->readAsset("andoid_vertex.glsl", tempStr))
 		LOG("Failed to read andoid_vertex.glsl");
-	LOG("13");
 	const char* temp1 = tempStr.c_str();
-	LOG("14");
+	*/
 	engine->vertexId = glCreateShader(GL_VERTEX_SHADER);
-	LOG("15");
-	glShaderSource(engine->vertexId, 1u, &temp1, NULL);
-	LOG("16");
+	glShaderSource(engine->vertexId, 1u, &VERTEXSOURCE, NULL);
 	glCompileShader(engine->vertexId);
-	LOG("17");
 	glGetShaderiv(engine->vertexId, GL_COMPILE_STATUS, &result);
-	LOG("18");
+
 	if (result != GL_TRUE)
 	{
 		LOG("Vertex compile error");
 		shaderErrorLog(engine->vertexId);
 	}
-	LOG("19");
+
+	/*
 	if (!engine->fileManager->readAsset("andoid_fragment.glsl", tempStr))
 		LOG("Failed to read andoid_fragment.glsl");
 	const char* temp2 = tempStr.c_str();
+	*/
 	engine->fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(engine->fragmentId, 1, &temp2, NULL);
+	glShaderSource(engine->fragmentId, 1, &FRAGMENTSOURCE, NULL);
 	glCompileShader(engine->fragmentId);
 	glGetShaderiv(engine->fragmentId, GL_COMPILE_STATUS, &result);
 	if (result != GL_TRUE)
@@ -374,7 +366,7 @@ static int engine_init_display(struct engine* engine)
 		LOG("unifFontTexture not found");
 	gl::checkError();
 
-	engine->model = modelTransform(200, 400, 256, 256, 45.0f);
+	engine->model = modelTransform(200, 400, 512, 512, 45.0f);
 	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1.0f, 1.0f);
 
 	glUseProgram(engine->programId);
@@ -420,7 +412,7 @@ static int engine_init_display(struct engine* engine)
 	
 	//texture
 	glUseProgram(engine->programId);
-	if (!engine->texture.load(engine->fileManager, "koala64.png"))
+	if (!engine->texture.load(engine->fileManager, "koala.png"))
 		LOG("Failed to load texture!");
 	glUseProgram(0u);
 	return 0;
