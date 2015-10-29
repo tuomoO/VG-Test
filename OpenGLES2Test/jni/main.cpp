@@ -367,14 +367,14 @@ static int engine_init_display(struct engine* engine)
 	gl::checkError();
 
 	engine->model = modelTransform(200, 400, 512, 512, 45.0f);
-	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1.0f, 1.0f);
+	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1000000.0f, 1000000.0f);
 
 	glUseProgram(engine->programId);
 	glUniformMatrix4fv(engine->modelId, 1, GL_FALSE, glm::value_ptr(engine->model));
 	gl::checkError();
 	glUniformMatrix4fv(engine->projectionId, 1, GL_FALSE, glm::value_ptr(engine->projection));
 	gl::checkError();
-	glUniform1f(engine->layerId, 0.5f);
+	glUniform1f(engine->layerId, 100000.0f);
 	gl::checkError();
 	glUniform1f(engine->noTextureId, 0.0f);
 	gl::checkError();

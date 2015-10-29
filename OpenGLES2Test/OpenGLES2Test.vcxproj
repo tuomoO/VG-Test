@@ -61,6 +61,7 @@
     </Link>
     <AntBuild>
       <SkipAntStep>False</SkipAntStep>
+      <AssetsDirectories>$(ProjectDir)assets/;</AssetsDirectories>
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Tegra-Android'">
@@ -75,6 +76,7 @@
     </Link>
     <AntBuild>
       <SkipAntStep>False</SkipAntStep>
+      <AssetsDirectories>$(ProjectDir)assets/;</AssetsDirectories>
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Shipping|Tegra-Android'">
@@ -89,6 +91,7 @@
     </Link>
     <AntBuild>
       <SkipAntStep>False</SkipAntStep>
+      <AssetsDirectories>$(ProjectDir)assets/;</AssetsDirectories>
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemGroup>
