@@ -20,6 +20,8 @@
 #include "texture.h"
 #include "fileManager.h"
 #include "opengl.h"
+#include "indexBuffer.h"
+#include "vertexBuffer.h"
 
 #include <jni.h>
 #include <errno.h>
@@ -56,60 +58,6 @@ glm::mat4 modelTransform(int x, int y, int sx, int sy, float rotation)
 	model = glm::scale(model, glm::vec3(size2, 1.0f));
 	return model;
 }
-
-static const GLchar* VERTEXSOURCE
-{
-	"precision highp float;\n"
-
-	"attribute vec2 attrPosition;\n"
-	"attribute vec4 attrColor;\n"
-	"attribute vec2 attrTexCoord;\n"
-	
-	"varying vec4 varyColor;\n"
-	"varying vec2 varyTexCoord;\n"
-	
-	"uniform mat4 unifProjection;\n"
-	"uniform mat4 unifModel;\n"
-	"uniform float unifLayer;\n"
-
-	"void main()\n"
-	"{\n"
-	"	varyTexCoord = attrTexCoord;\n"
-	"	varyColor = attrColor;\n"
-	"   gl_Position = unifProjection * unifModel * vec4(attrPosition, unifLayer, 1.0);\n"
-	"}\n"
-};
-
-static const GLchar* FRAGMENTSOURCE
-{
-	"precision mediump float;\n"
-
-	"varying vec4 varyColor;\n"
-	"varying vec2 varyTexCoord;\n"
-
-	"uniform sampler2D unifTexture;\n"
-	"uniform float unifNoTexture;\n"
-	"uniform float unifFontTexture;\n"
-
-	"void main()\n"
-	"{\n"
-	"	if (unifNoTexture > 0.5)\n"
-	"		gl_FragColor = varyColor;\n"
-	"	else\n"
-	"	{\n"
-    "		if (unifFontTexture > 0.5)\n"
-	"		{\n"
-	"			float alpha = texture2D(unifTexture, varyTexCoord).a * varyColor.a;\n"
-	"			gl_FragColor = vec4(varyColor.rgb, alpha); \n"
-	"		}\n"
-	"		else\n"
-	"		{\n"
-	"			gl_FragColor = texture2D(unifTexture, varyTexCoord);\n"
-	"			gl_FragColor *= varyColor;\n"
-	"		}\n"
-	"	}\n"
-	"}\n"
-};
 
 vector<float> VERTICES = std::vector <float>
 {
@@ -174,11 +122,14 @@ struct engine
     struct saved_state state;
 
 	GLuint programId, vertexId, fragmentId;
-	GLuint vertexBuffer, indexBuffer;
+	//GLuint vertexBuffer, indexBuffer;
+	VertexBuffer* vBuffer;
+	IndexBuffer* iBuffer;
 	GLint positionId, colorId, texCoordId, modelId, projectionId, layerId, noTextureId, fontTextureId;
 	glm::mat4 model, projection;
-	Texture texture;
+	Texture texture1, texture2;
 	FileManager* fileManager;
+	int time;
 };
 
 /**
@@ -286,14 +237,13 @@ static int engine_init_display(struct engine* engine)
 	GLint result = GL_FALSE;
 
 	//shaders
-	/*
 	std::string tempStr;
-	if (!engine->fileManager->readAsset("andoid_vertex.glsl", tempStr))
+	if (!engine->fileManager->readAsset("android_vertex.glsl", tempStr))
 		LOG("Failed to read andoid_vertex.glsl");
 	const char* temp1 = tempStr.c_str();
-	*/
+	
 	engine->vertexId = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(engine->vertexId, 1u, &VERTEXSOURCE, NULL);
+	glShaderSource(engine->vertexId, 1u, &temp1, NULL);
 	glCompileShader(engine->vertexId);
 	glGetShaderiv(engine->vertexId, GL_COMPILE_STATUS, &result);
 
@@ -303,13 +253,12 @@ static int engine_init_display(struct engine* engine)
 		shaderErrorLog(engine->vertexId);
 	}
 
-	/*
-	if (!engine->fileManager->readAsset("andoid_fragment.glsl", tempStr))
+	if (!engine->fileManager->readAsset("android_fragment.glsl", tempStr))
 		LOG("Failed to read andoid_fragment.glsl");
 	const char* temp2 = tempStr.c_str();
-	*/
+	
 	engine->fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(engine->fragmentId, 1, &FRAGMENTSOURCE, NULL);
+	glShaderSource(engine->fragmentId, 1, &temp2, NULL);
 	glCompileShader(engine->fragmentId);
 	glGetShaderiv(engine->fragmentId, GL_COMPILE_STATUS, &result);
 	if (result != GL_TRUE)
@@ -399,21 +348,30 @@ static int engine_init_display(struct engine* engine)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	
 	//Vertex buffer
+	/*
 	glGenBuffers(1, &(engine->vertexBuffer));
 	glBindBuffer(GL_ARRAY_BUFFER, engine->vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, VERTICES.size() * sizeof(GLfloat), VERTICES.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0u);
+	*/
 
 	//Index buffer
+	/*
 	glGenBuffers(1, &(engine->indexBuffer));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES.size() * sizeof(GLushort), INDICES.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
-	
+	*/
+
+	engine->iBuffer = new IndexBuffer();
+	engine->vBuffer = new VertexBuffer();
+
 	//texture
 	glUseProgram(engine->programId);
-	if (!engine->texture.load(engine->fileManager, "koala.png"))
-		LOG("Failed to load texture!");
+	if (!engine->texture1.load(engine->fileManager, "koala.png"))
+		LOG("Failed to load texture1!");
+	if (!engine->texture2.load(engine->fileManager, "hippo.png"))
+		LOG("Failed to load texture2!");	
 	glUseProgram(0u);
 	return 0;
 }
@@ -423,7 +381,11 @@ static int engine_init_display(struct engine* engine)
  */
 static void engine_draw_frame(struct engine* engine) 
 {
-    if (engine->display == NULL) 
+	if (engine->time > 10000000)
+		engine->time = 1;
+	engine->time++;
+
+	if (engine->display == NULL) 
 	{
         // No display.
         return;
@@ -434,8 +396,11 @@ static void engine_draw_frame(struct engine* engine)
 	//glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glBindBuffer(GL_ARRAY_BUFFER, engine->vertexBuffer);
-	gl::checkError();
+	//glBindBuffer(GL_ARRAY_BUFFER, engine->vertexBuffer);
+	//gl::checkError();
+	engine->vBuffer->setData(VERTICES);
+	engine->vBuffer->bind();
+
 	glEnableVertexAttribArray(engine->positionId);
 	gl::checkError();
 	glVertexAttribPointer(engine->positionId, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
@@ -451,18 +416,28 @@ static void engine_draw_frame(struct engine* engine)
 	glVertexAttribPointer(engine->texCoordId, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(6 * sizeof(GLfloat)));
 	gl::checkError();
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->indexBuffer);
-	gl::checkError();
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->indexBuffer);
+	//gl::checkError();
+	engine->iBuffer->setData(INDICES);
+	engine->iBuffer->bind();
 
-	engine->texture.bind();
+	if (engine->time % 2)
+		engine->texture1.bind();
+	else
+		engine->texture2.bind();
 	gl::checkError();
 	glDrawElements(GL_TRIANGLES, INDICES.size(), GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
 	gl::checkError();
-	engine->texture.unbind();
+	if (engine->time % 2)
+		engine->texture1.unbind();
+	else
+		engine->texture2.unbind(); 
 	gl::checkError();
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0u);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0u);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
+	engine->iBuffer->unbind();
+	engine->vBuffer->unbind();
 	glUseProgram(0u);
 	eglSwapBuffers(engine->display, engine->surface);
 }

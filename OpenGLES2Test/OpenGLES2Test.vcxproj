@@ -100,18 +100,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jni\fileManager.cpp" />
+    <ClCompile Include="jni\indexBuffer.cpp" />
     <ClCompile Include="jni\lodepng\lodepng.cpp" />
     <ClCompile Include="jni\main.cpp" />
     <ClCompile Include="jni\opengl.cpp" />
     <ClCompile Include="jni\texture.cpp" />
+    <ClCompile Include="jni\vertexBuffer.cpp" />
     <ClCompile Include="native_app_glue\android_native_app_glue.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="jni\buffer.h" />
     <ClInclude Include="jni\fileManager.h" />
+    <ClInclude Include="jni\indexBuffer.h" />
     <ClInclude Include="jni\lodepng\lodepng.h" />
     <ClInclude Include="jni\log.h" />
     <ClInclude Include="jni\opengl.h" />
     <ClInclude Include="jni\texture.h" />
+    <ClInclude Include="jni\vertexBuffer.h" />
+    <ClInclude Include="jni\vertexBufferElement.h" />
     <ClInclude Include="native_app_glue\android_native_app_glue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

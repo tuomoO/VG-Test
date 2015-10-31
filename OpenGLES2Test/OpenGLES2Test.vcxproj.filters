@@ -37,6 +37,12 @@
     <ClCompile Include="jni\opengl.cpp">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\indexBuffer.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\vertexBuffer.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="native_app_glue\android_native_app_glue.h" />
@@ -53,6 +59,18 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\log.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\buffer.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\indexBuffer.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\vertexBufferElement.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\vertexBuffer.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>
