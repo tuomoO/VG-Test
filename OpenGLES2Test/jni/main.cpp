@@ -22,6 +22,7 @@
 #include "opengl.h"
 #include "indexBuffer.h"
 #include "vertexBuffer.h"
+#include "shader.h"
 
 #include <jni.h>
 #include <errno.h>
@@ -121,15 +122,13 @@ struct engine
     int32_t height;
     struct saved_state state;
 
-	GLuint programId, vertexId, fragmentId;
-	//GLuint vertexBuffer, indexBuffer;
 	VertexBuffer* vBuffer;
 	IndexBuffer* iBuffer;
-	GLint positionId, colorId, texCoordId, modelId, projectionId, layerId, noTextureId, fontTextureId;
 	glm::mat4 model, projection;
 	Texture texture1, texture2;
 	FileManager* fileManager;
-	int time;
+	Shader* shader;
+	int time, x, y;
 };
 
 /**
@@ -231,105 +230,16 @@ static int engine_init_display(struct engine* engine)
     engine->height = h;
     engine->state.angle = 0;
 
-	//***************************************************
-	//opengl
-	engine->programId = glCreateProgram();
-	GLint result = GL_FALSE;
+	// opengl
+	LOG("buffer creation");
+	engine->iBuffer = new IndexBuffer();
+	engine->vBuffer = new VertexBuffer();
 
-	//shaders
-	std::string tempStr;
-	if (!engine->fileManager->readAsset("android_vertex.glsl", tempStr))
-		LOG("Failed to read andoid_vertex.glsl");
-	const char* temp1 = tempStr.c_str();
-	
-	engine->vertexId = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(engine->vertexId, 1u, &temp1, NULL);
-	glCompileShader(engine->vertexId);
-	glGetShaderiv(engine->vertexId, GL_COMPILE_STATUS, &result);
-
-	if (result != GL_TRUE)
-	{
-		LOG("Vertex compile error");
-		shaderErrorLog(engine->vertexId);
-	}
-
-	if (!engine->fileManager->readAsset("android_fragment.glsl", tempStr))
-		LOG("Failed to read andoid_fragment.glsl");
-	const char* temp2 = tempStr.c_str();
-	
-	engine->fragmentId = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(engine->fragmentId, 1, &temp2, NULL);
-	glCompileShader(engine->fragmentId);
-	glGetShaderiv(engine->fragmentId, GL_COMPILE_STATUS, &result);
-	if (result != GL_TRUE)
-	{
-		LOG("Fragment compile error");
-		shaderErrorLog(engine->vertexId);
-	}
-
-	//link
-	glAttachShader(engine->programId, engine->vertexId);
-	glAttachShader(engine->programId, engine->fragmentId);
-	glLinkProgram(engine->programId);
-	glGetProgramiv(engine->programId, GL_LINK_STATUS, &result);
-	if (result != GL_TRUE)
-		LOG("Shader link error");
-
-	engine->positionId = glGetAttribLocation(engine->programId, "attrPosition");
-	if (engine->positionId < 0)
-		LOG("attrPosition not found");
-	gl::checkError();
-
-	engine->colorId = glGetAttribLocation(engine->programId, "attrColor");
-	if (engine->colorId < 0)
-		LOG("attrColor not found");
-	gl::checkError();
-
-	engine->texCoordId = glGetAttribLocation(engine->programId, "attrTexCoord");
-	if (engine->texCoordId < 0)
-		LOG("attrTexCoord not found");
-	gl::checkError();
-
-	engine->modelId = glGetUniformLocation(engine->programId, "unifModel");
-	if (engine->modelId < 0)
-		LOG("unifModel not found");
-	gl::checkError();
-
-	engine->projectionId = glGetUniformLocation(engine->programId, "unifProjection");
-	if (engine->modelId < 0)
-		LOG("unifProjection not found");
-	gl::checkError();
-
-	engine->layerId = glGetUniformLocation(engine->programId, "unifLayer");
-	if (engine->modelId < 0)
-		LOG("unifLayer not found");
-	gl::checkError();
-
-	engine->noTextureId = glGetUniformLocation(engine->programId, "unifNoTexture");
-	if (engine->noTextureId < 0)
-		LOG("unifNoTexture not found");
-	gl::checkError();
-
-	engine->fontTextureId = glGetUniformLocation(engine->programId, "unifFontTexture");
-	if (engine->fontTextureId < 0)
-		LOG("unifFontTexture not found");
-	gl::checkError();
-
-	engine->model = modelTransform(200, 400, 512, 512, 45.0f);
-	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1000000.0f, 1000000.0f);
-
-	glUseProgram(engine->programId);
-	glUniformMatrix4fv(engine->modelId, 1, GL_FALSE, glm::value_ptr(engine->model));
-	gl::checkError();
-	glUniformMatrix4fv(engine->projectionId, 1, GL_FALSE, glm::value_ptr(engine->projection));
-	gl::checkError();
-	glUniform1f(engine->layerId, 100000.0f);
-	gl::checkError();
-	glUniform1f(engine->noTextureId, 0.0f);
-	gl::checkError();
-	glUniform1f(engine->fontTextureId, 0.0f);
-	gl::checkError();
-	glUseProgram(0u);
+	engine->shader = new Shader();
+	engine->shader->initialize();
+	LOG("shader load begin");
+	engine->shader->load(*engine->fileManager);
+	LOG("shader load end");
 
 	// transparency
 	glEnable(GL_BLEND);
@@ -346,33 +256,16 @@ static int engine_init_display(struct engine* engine)
 
 	// font
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	
-	//Vertex buffer
-	/*
-	glGenBuffers(1, &(engine->vertexBuffer));
-	glBindBuffer(GL_ARRAY_BUFFER, engine->vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, VERTICES.size() * sizeof(GLfloat), VERTICES.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0u);
-	*/
-
-	//Index buffer
-	/*
-	glGenBuffers(1, &(engine->indexBuffer));
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, INDICES.size() * sizeof(GLushort), INDICES.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
-	*/
-
-	engine->iBuffer = new IndexBuffer();
-	engine->vBuffer = new VertexBuffer();
 
 	//texture
-	glUseProgram(engine->programId);
+	engine->shader->useProgram();
 	if (!engine->texture1.load(engine->fileManager, "koala.png"))
 		LOG("Failed to load texture1!");
 	if (!engine->texture2.load(engine->fileManager, "hippo.png"))
 		LOG("Failed to load texture2!");	
-	glUseProgram(0u);
+	engine->shader->unUseProgram();
+
+	engine->time = engine->x = engine->y = 0;
 	return 0;
 }
 
@@ -390,34 +283,28 @@ static void engine_draw_frame(struct engine* engine)
         // No display.
         return;
     }
-	glUseProgram(engine->programId);
+	engine->shader->useProgram();
 	gl::checkError();
+
+	engine->y++;
+	if (engine->y > 500)
+		engine->y = 0;
+	engine->model = modelTransform(200, engine->y, 512, 512, 45.0f);
+	engine->projection = glm::ortho(0.0f, static_cast<float>(engine->width), static_cast<float>(engine->height), 0.0f, -1000000.0f, 1000000.0f);
+
+	engine->shader->setUniform("unifProjection", engine->projection);
+	engine->shader->setUniform("unifModel", engine->model);
+	engine->shader->setUniform("unifLayer", 1.0f);
+	engine->shader->setUniform("unifNoTexture", false);
+	engine->shader->setUniform("unifFontTexture", false);
+
 	glClearColor(((float)engine->state.x)/engine->width, engine->state.angle,((float)engine->state.y)/engine->height, 1);
 	//glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//glBindBuffer(GL_ARRAY_BUFFER, engine->vertexBuffer);
-	//gl::checkError();
 	engine->vBuffer->setData(VERTICES);
 	engine->vBuffer->bind();
 
-	glEnableVertexAttribArray(engine->positionId);
-	gl::checkError();
-	glVertexAttribPointer(engine->positionId, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0);
-	gl::checkError();
-
-	glEnableVertexAttribArray(engine->colorId);
-	gl::checkError();
-	glVertexAttribPointer(engine->colorId, 4, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(2 * sizeof(GLfloat)));
-	gl::checkError();
-
-	glEnableVertexAttribArray(engine->texCoordId);
-	gl::checkError();
-	glVertexAttribPointer(engine->texCoordId, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(6 * sizeof(GLfloat)));
-	gl::checkError();
-
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, engine->indexBuffer);
-	//gl::checkError();
 	engine->iBuffer->setData(INDICES);
 	engine->iBuffer->bind();
 
@@ -434,11 +321,9 @@ static void engine_draw_frame(struct engine* engine)
 		engine->texture2.unbind(); 
 	gl::checkError();
 
-	//glBindBuffer(GL_ARRAY_BUFFER, 0u);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0u);
 	engine->iBuffer->unbind();
 	engine->vBuffer->unbind();
-	glUseProgram(0u);
+	engine->shader->unUseProgram();
 	eglSwapBuffers(engine->display, engine->surface);
 }
 

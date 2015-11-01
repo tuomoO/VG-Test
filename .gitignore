@@ -37,3 +37,4 @@
 OpenGLES2Test/Tegra-Android/*
 OpenGLES2Test/*.glsl
 OpenGLES2Test/*.png
+OpenGLES2Test/assetsshaders/*

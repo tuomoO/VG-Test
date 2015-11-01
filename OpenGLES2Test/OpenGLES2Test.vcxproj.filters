@@ -43,6 +43,9 @@
     <ClCompile Include="jni\vertexBuffer.cpp">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\shader.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="native_app_glue\android_native_app_glue.h" />
@@ -71,6 +74,12 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\vertexBuffer.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\shader.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\Vector2.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>
