@@ -31,12 +31,6 @@
     <ClCompile Include="jni\texture.cpp">
       <Filter>jni</Filter>
     </ClCompile>
-    <ClCompile Include="jni\fileManager.cpp">
-      <Filter>jni</Filter>
-    </ClCompile>
-    <ClCompile Include="jni\opengl.cpp">
-      <Filter>jni</Filter>
-    </ClCompile>
     <ClCompile Include="jni\indexBuffer.cpp">
       <Filter>jni</Filter>
     </ClCompile>
@@ -44,6 +38,15 @@
       <Filter>jni</Filter>
     </ClCompile>
     <ClCompile Include="jni\shader.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\opengl_android.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\fileManager_android.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\asset.cpp">
       <Filter>jni</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,6 +83,12 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\Vector2.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\logger.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\asset.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>

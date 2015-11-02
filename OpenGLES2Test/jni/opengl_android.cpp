@@ -1,13 +1,16 @@
-
-#include "log.h"
+#if defined(OS_ANDROID)
+#pragma once
+#include <GLES2/gl2.h>
 #include "opengl.h"
+#include "logger.h"
 
+using namespace vg::graphics;
 void gl::checkError()
 {
 	unsigned int error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LOG("OpenGL error: %i", error);
+		Log("vgengine", "OpenGL error: %i", error, "");
 	}
 }
 void gl::enableVertexAttribArray(unsigned int index)
@@ -99,14 +102,10 @@ void gl::texImage2D(unsigned int width, unsigned int height, const unsigned char
 
 void gl::clear()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkError();
 }
-void  gl::clear(unsigned int  mask)
-{
-	glClear(mask);
-	checkError();
-}
+
 void gl::clearColor(float red, float green, float blue, float alpha)
 {
 	glClearColor(GLclampf(red), GLclampf(green), GLclampf(blue), GLclampf(alpha));
@@ -245,3 +244,109 @@ void gl::compileShader(unsigned int shader)
 	glCompileShader(shader);
 	checkError();
 }
+unsigned int gl::getGL_FLOAT()
+{
+	return GL_FLOAT;
+}
+
+unsigned int gl::getGL_CLAMP_TO_EDGE()
+{
+	return GL_CLAMP_TO_EDGE;
+}
+
+unsigned int gl::getGL_COLOR_BUFFER_BIT()
+{
+	return GL_COLOR_BUFFER_BIT;
+}
+
+unsigned int gl::getGL_ELEMENT_ARRAY_BUFFER()
+{
+	return GL_ELEMENT_ARRAY_BUFFER;
+}
+
+unsigned int gl::getGL_LINEAR()
+{
+	return GL_LINEAR;
+}
+
+unsigned int gl::getGL_TEXTURE_MAG_FILTER()
+{
+	return GL_TEXTURE_MAG_FILTER;
+}
+
+unsigned int gl::getGL_TEXTURE_MIN_FILTER()
+{
+	return GL_TEXTURE_MIN_FILTER;
+}
+
+unsigned int gl::getGL_TEXTURE_WRAP_S()
+{
+	return GL_TEXTURE_WRAP_S;
+}
+
+unsigned int gl::getGL_TEXTURE_WRAP_T()
+{
+	return GL_TEXTURE_WRAP_T;
+}
+unsigned int gl::getGL_ALPHA()
+{
+	return GL_ALPHA;
+}
+
+unsigned int gl::getGL_DYNAMIC_DRAW()
+{
+	return GL_DYNAMIC_DRAW;
+}
+unsigned int gl::getGL_ARRAY_BUFFER()
+{
+	return GL_ARRAY_BUFFER;
+}
+
+unsigned int gl::getGL_FALSE()
+{
+	return GL_FALSE;
+}
+unsigned int gl::getGL_TRUE()
+{
+	return GL_TRUE;
+}
+unsigned int gl::getGL_UNSIGNED_SHORT()
+{
+	return GL_UNSIGNED_SHORT;
+}
+
+unsigned int gl::getGL_TRIANGLES()
+{
+	return GL_TRIANGLES;
+}
+
+
+unsigned int gl::getGL_NEAREST()
+{
+	return GL_NEAREST;
+}
+
+unsigned int gl::getGL_COMPILE_STATUS()
+{
+	return GL_COMPILE_STATUS;
+}
+
+unsigned int gl::getGL_FRAGMENT_SHADER()
+{
+	return GL_FRAGMENT_SHADER;
+}
+
+unsigned int gl::getGL_VERTEX_SHADER()
+{
+	return GL_VERTEX_SHADER;
+}
+
+unsigned int gl::getGL_INFO_LOG_LENGTH()
+{
+	return GL_INFO_LOG_LENGTH;
+}
+unsigned int gl::getGL_DEPTH_BUFFER_BIT()
+{
+	return GL_DEPTH_BUFFER_BIT;
+}
+#endif

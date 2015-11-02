@@ -52,7 +52,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Tegra-Android'">
     <ClCompile>
       <CppLanguageStandard>c++11</CppLanguageStandard>
-      <PreprocessorDefinitions>DISABLE_IMPORTGL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DISABLE_IMPORTGL;OS_ANDROID</PreprocessorDefinitions>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
@@ -99,22 +99,25 @@
     <AndroidBuild Include="res\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jni\fileManager.cpp" />
+    <ClCompile Include="jni\asset.cpp" />
+    <ClCompile Include="jni\fileManager_android.cpp" />
     <ClCompile Include="jni\indexBuffer.cpp" />
     <ClCompile Include="jni\lodepng\lodepng.cpp" />
     <ClCompile Include="jni\main.cpp" />
-    <ClCompile Include="jni\opengl.cpp" />
+    <ClCompile Include="jni\opengl_android.cpp" />
     <ClCompile Include="jni\shader.cpp" />
     <ClCompile Include="jni\texture.cpp" />
     <ClCompile Include="jni\vertexBuffer.cpp" />
     <ClCompile Include="native_app_glue\android_native_app_glue.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="jni\asset.h" />
     <ClInclude Include="jni\buffer.h" />
     <ClInclude Include="jni\fileManager.h" />
     <ClInclude Include="jni\indexBuffer.h" />
     <ClInclude Include="jni\lodepng\lodepng.h" />
     <ClInclude Include="jni\log.h" />
+    <ClInclude Include="jni\logger.h" />
     <ClInclude Include="jni\opengl.h" />
     <ClInclude Include="jni\shader.h" />
     <ClInclude Include="jni\texture.h" />

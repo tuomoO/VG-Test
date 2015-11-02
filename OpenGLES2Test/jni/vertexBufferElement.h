@@ -3,40 +3,45 @@
 
 #include <stdint.h>
 
-
-/**
-Contains usage types for vertexBuffer
-*/
-enum VertexElementUsage
+namespace vg
 {
-	Position,
-	Color,
-	TexCoord,
+	namespace graphics
+	{
+		/**
+		Contains usage types for vertexBuffer
+		*/
+		enum VertexElementUsage
+		{
+			Position,
+			Color,
+			TexCoord,
 
-	UsageCOUNT
-};
+			UsageCOUNT
+		};
 
-/**
-Contains types for verteBuffer
-*/
-enum VertexElementType
-{
-	Float = 1,
-	Vec2 = 2,
-	Vec3 = 3,
-	Vec4 = 4,
-	Mat2 = 2 * 2,
-	Mat3 = 3 * 3,
-	Mat4 = 4 * 4,
+		/**
+		Contains types for verteBuffer
+		*/
+		enum VertexElementType
+		{
+			Float = 1,
+			Vec2 = 2,
+			Vec3 = 3,
+			Vec4 = 4,
+			Mat2 = 2 * 2,
+			Mat3 = 3 * 3,
+			Mat4 = 4 * 4,
 
-	TypeCOUNT
-};
+			TypeCOUNT
+		};
 
-/**
-<description>
-*/
-struct VertexElement
-{
-	uint32_t mUsage;
-	uint32_t mType;
-};
+		/**
+		<description>
+		*/
+		struct VertexElement
+		{
+			uint32_t mUsage;
+			uint32_t mType;
+		};
+	}
+}

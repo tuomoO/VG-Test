@@ -28,14 +28,18 @@
 #include <errno.h>
 
 #include <EGL/egl.h>
+#include <GLES2\gl2.h>
 
 #include <android/sensor.h>
-#include "../native_app_glue/android_native_app_glue.h"
+
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include <vector>
 using namespace std;
+using namespace vg;
+using namespace vg::graphics;
+using namespace vg::core;
 
 void shaderErrorLog(GLuint shader)
 {
@@ -125,7 +129,7 @@ struct engine
 	VertexBuffer* vBuffer;
 	IndexBuffer* iBuffer;
 	glm::mat4 model, projection;
-	Texture texture1, texture2;
+	Texture *texture1, *texture2;
 	FileManager* fileManager;
 	Shader* shader;
 	int time, x, y;
@@ -259,9 +263,11 @@ static int engine_init_display(struct engine* engine)
 
 	//texture
 	engine->shader->useProgram();
-	if (!engine->texture1.load(engine->fileManager, "koala.png"))
+	engine->texture1 = new Texture("koala.png");
+	engine->texture2 = new Texture("hippo.png");
+	if (!engine->texture1->load(engine->fileManager))
 		LOG("Failed to load texture1!");
-	if (!engine->texture2.load(engine->fileManager, "hippo.png"))
+	if (!engine->texture2->load(engine->fileManager))
 		LOG("Failed to load texture2!");	
 	engine->shader->unUseProgram();
 
@@ -309,16 +315,16 @@ static void engine_draw_frame(struct engine* engine)
 	engine->iBuffer->bind();
 
 	if (engine->time % 2)
-		engine->texture1.bind();
+		engine->texture1->bind();
 	else
-		engine->texture2.bind();
+		engine->texture2->bind();
 	gl::checkError();
 	glDrawElements(GL_TRIANGLES, INDICES.size(), GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
 	gl::checkError();
 	if (engine->time % 2)
-		engine->texture1.unbind();
+		engine->texture1->unbind();
 	else
-		engine->texture2.unbind(); 
+		engine->texture2->unbind(); 
 	gl::checkError();
 
 	engine->iBuffer->unbind();
