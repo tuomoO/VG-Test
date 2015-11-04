@@ -23,6 +23,8 @@
 #include "indexBuffer.h"
 #include "vertexBuffer.h"
 #include "shader.h"
+#include "quadrangleComponent.h"
+#include "transformComponent.h"
 
 #include <jni.h>
 #include <errno.h>
@@ -133,6 +135,8 @@ struct engine
 	FileManager* fileManager;
 	Shader* shader;
 	int time, x, y;
+	QuadrangleComponent quad1, quad2;
+	TransformComponent* tran1, tran2;
 };
 
 /**
@@ -270,6 +274,9 @@ static int engine_init_display(struct engine* engine)
 	if (!engine->texture2->load(engine->fileManager))
 		LOG("Failed to load texture2!");	
 	engine->shader->unUseProgram();
+
+	//components
+
 
 	engine->time = engine->x = engine->y = 0;
 	return 0;

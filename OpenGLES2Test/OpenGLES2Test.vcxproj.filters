@@ -49,6 +49,24 @@
     <ClCompile Include="jni\asset.cpp">
       <Filter>jni</Filter>
     </ClCompile>
+    <ClCompile Include="jni\component.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\quadrangleComponent.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\renderComponent.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\transformComponent.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\gameObject.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
+    <ClCompile Include="jni\baseClass.cpp">
+      <Filter>jni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="native_app_glue\android_native_app_glue.h" />
@@ -89,6 +107,27 @@
       <Filter>jni</Filter>
     </ClInclude>
     <ClInclude Include="jni\asset.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\component.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\quadrangleComponent.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\renderComponent.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\transformComponent.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\gameObject.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\baseClass.h">
+      <Filter>jni</Filter>
+    </ClInclude>
+    <ClInclude Include="jni\math.h">
       <Filter>jni</Filter>
     </ClInclude>
   </ItemGroup>

@@ -100,27 +100,40 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="jni\asset.cpp" />
+    <ClCompile Include="jni\baseClass.cpp" />
+    <ClCompile Include="jni\component.cpp" />
     <ClCompile Include="jni\fileManager_android.cpp" />
+    <ClCompile Include="jni\gameObject.cpp" />
     <ClCompile Include="jni\indexBuffer.cpp" />
     <ClCompile Include="jni\lodepng\lodepng.cpp" />
     <ClCompile Include="jni\main.cpp" />
     <ClCompile Include="jni\opengl_android.cpp" />
+    <ClCompile Include="jni\quadrangleComponent.cpp" />
+    <ClCompile Include="jni\renderComponent.cpp" />
     <ClCompile Include="jni\shader.cpp" />
     <ClCompile Include="jni\texture.cpp" />
+    <ClCompile Include="jni\transformComponent.cpp" />
     <ClCompile Include="jni\vertexBuffer.cpp" />
     <ClCompile Include="native_app_glue\android_native_app_glue.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni\asset.h" />
+    <ClInclude Include="jni\baseClass.h" />
     <ClInclude Include="jni\buffer.h" />
+    <ClInclude Include="jni\component.h" />
     <ClInclude Include="jni\fileManager.h" />
+    <ClInclude Include="jni\gameObject.h" />
     <ClInclude Include="jni\indexBuffer.h" />
     <ClInclude Include="jni\lodepng\lodepng.h" />
     <ClInclude Include="jni\log.h" />
     <ClInclude Include="jni\logger.h" />
+    <ClInclude Include="jni\math.h" />
     <ClInclude Include="jni\opengl.h" />
+    <ClInclude Include="jni\quadrangleComponent.h" />
+    <ClInclude Include="jni\renderComponent.h" />
     <ClInclude Include="jni\shader.h" />
     <ClInclude Include="jni\texture.h" />
+    <ClInclude Include="jni\transformComponent.h" />
     <ClInclude Include="jni\Vector2.h" />
     <ClInclude Include="jni\vertexBuffer.h" />
     <ClInclude Include="jni\vertexBufferElement.h" />
